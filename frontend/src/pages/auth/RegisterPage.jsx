@@ -2,16 +2,28 @@ import { memo, useCallback, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 import toast from "react-hot-toast";
+import {
+  BugIcon,
+  CartIcon,
+  FoodIcon,
+  ClothingIcon,
+  ShoeIcon,
+  PhoneIcon,
+  HomeIcon,
+  PharmacyIcon,
+  BoxIcon,
+  CheckIcon,
+} from "../../components/icons/Icons";
 
 const CATEGORIES = [
-  { value: "groceries", label: "🛒 Groceries" },
-  { value: "food_drinks", label: "🍲 Food & Drinks" },
-  { value: "clothing", label: "👗 Clothing" },
-  { value: "footwear", label: "👟 Footwear" },
-  { value: "electronics", label: "📱 Electronics" },
-  { value: "home_living", label: "🏠 Home & Living" },
-  { value: "pharmacy", label: "💊 Pharmacy" },
-  { value: "other", label: "📦 Other" },
+  { value: "groceries", label: "Groceries", Icon: CartIcon },
+  { value: "food_drinks", label: "Food & Drinks", Icon: FoodIcon },
+  { value: "clothing", label: "Clothing", Icon: ClothingIcon },
+  { value: "footwear", label: "Footwear", Icon: ShoeIcon },
+  { value: "electronics", label: "Electronics", Icon: PhoneIcon },
+  { value: "home_living", label: "Home & Living", Icon: HomeIcon },
+  { value: "pharmacy", label: "Pharmacy", Icon: PharmacyIcon },
+  { value: "other", label: "Other", Icon: BoxIcon },
 ];
 
 const STEPS = ["Business Info", "Contact & Location", "Account Setup"];
@@ -117,7 +129,9 @@ export default function RegisterPage() {
           }}
         />
         <div className="relative text-center">
-          <div className="text-8xl mb-6">🪲</div>
+          <div className="mb-6">
+            <BugIcon className="w-20 h-20 text-white" />
+          </div>
           <h2 className="font-display text-6xl text-white mb-4">JOIN BEETLE</h2>
           <p className="font-body text-white/70 text-lg max-w-xs leading-relaxed">
             Register your business and start reaching thousands of customers
@@ -132,9 +146,10 @@ export default function RegisterPage() {
             ].map((f) => (
               <div
                 key={f}
-                className="bg-white/10 rounded-xl p-3 text-sm font-heading text-white"
+                className="bg-white/10 rounded-xl p-3 text-sm font-heading text-white flex items-center gap-2"
               >
-                ✓ {f}
+                <CheckIcon className="w-4 h-4 text-orange-400" />
+                <span>{f}</span>
               </div>
             ))}
           </div>
@@ -147,7 +162,7 @@ export default function RegisterPage() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 mb-10">
             <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
-              🪲
+              <BugIcon className="w-5 h-5 text-white" />
             </div>
             <span className="font-display text-2xl text-white tracking-wider">
               BEETLE
@@ -281,9 +296,12 @@ export default function RegisterPage() {
                 placeholder="Repeat password"
                 onChange={set}
               />
-              <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-4 text-sm font-body text-orange-300/80">
-                🪲 After registration, your account will be reviewed and
-                activated within 24 hours.
+              <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-4 text-sm font-body text-orange-300/80 flex items-start gap-2">
+                <BugIcon className="w-5 h-5 mt-1" />
+                <div>
+                  After registration, your account will be reviewed and
+                  activated within 24 hours.
+                </div>
               </div>
             </div>
           )}
@@ -305,7 +323,14 @@ export default function RegisterPage() {
                 disabled={loading}
                 className="btn-primary flex-1"
               >
-                {loading ? "Creating account..." : "Create Account 🪲"}
+                {loading ? (
+                  "Creating account..."
+                ) : (
+                  <>
+                    <span>Create Account</span>
+                    <BugIcon className="inline-block w-4 h-4 ml-2" />
+                  </>
+                )}
               </button>
             )}
           </div>

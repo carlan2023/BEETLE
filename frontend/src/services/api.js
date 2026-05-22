@@ -7,6 +7,14 @@ const api = axios.create({
 })
 
 api.interceptors.request.use(config => {
+  // Prefer admin token if present, otherwise vendor token
+  const rawAdmin = localStorage.getItem('beetle-admin')
+  if (rawAdmin) {
+    try {
+      const { token } = JSON.parse(rawAdmin)
+      if (token) { config.headers.Authorization = `Bearer ${token}`; return config }
+    } catch {}
+  }
   const raw = localStorage.getItem('beetle-auth')
   if (raw) {
     const { state } = JSON.parse(raw)
@@ -19,8 +27,11 @@ api.interceptors.response.use(
   res => res,
   err => {
     if (err.response?.status === 401) {
+      // clear both auth keys and redirect based on path
       localStorage.removeItem('beetle-auth')
-      window.location.href = '/vendor/login'
+      localStorage.removeItem('beetle-admin')
+      if (window.location.pathname.startsWith('/admin')) window.location.href = '/admin/login'
+      else window.location.href = '/vendor/login'
     }
     return Promise.reject(err)
   }
