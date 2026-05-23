@@ -12,6 +12,7 @@ import {
   BoxIcon,
   CheckIcon,
 } from "../../components/icons/Icons";
+import fallbackLogo from "../../assets/bug.svg";
 
 const CATEGORIES = [
   { Icon: CartIcon, label: "Groceries" },
@@ -85,8 +86,16 @@ function NavBar() {
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center gap-2">
-          <div className="w-9 h-9 bg-orange-500 rounded-xl flex items-center justify-center text-lg">
-            <BugIcon className="w-5 h-5 text-white" />
+          <div className="w-9 h-9 bg-orange-500 rounded-xl flex items-center justify-center text-lg overflow-hidden">
+            <img
+              src="/assets/images/logo.PNG"
+              alt="Beetle"
+              className="w-9 h-9 object-cover"
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = fallbackLogo;
+              }}
+            />
           </div>
           <span className="font-display text-3xl text-white tracking-wider">
             BEETLE

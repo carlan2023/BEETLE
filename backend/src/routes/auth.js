@@ -5,7 +5,7 @@ const { body, validationResult } = require('express-validator');
 const Vendor = require('../models/Vendor');
 const { protect } = require('../middleware/auth');
 
-// ── Helper: sign JWT ──────────────────────────────────────────────────────────
+
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',

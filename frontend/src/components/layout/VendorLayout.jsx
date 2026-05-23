@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { BugIcon, HourglassIcon } from "../../components/icons/Icons";
+import fallbackLogo from "../../assets/bug.svg";
 import { useAuthStore } from "../../store/authStore";
 import toast from "react-hot-toast";
 import clsx from "clsx";
@@ -47,8 +48,16 @@ export default function VendorLayout() {
     >
       {/* Logo */}
       <div className="flex items-center gap-2 px-6 py-5 border-b border-white/[0.06]">
-        <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-base">
-          <BugIcon className="w-5 h-5 text-white" />
+        <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-base overflow-hidden">
+            <img
+            src="/assets/images/logo.PNG"
+            alt="Beetle"
+            className="w-8 h-8 object-cover"
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = fallbackLogo;
+            }}
+          />
         </div>
         <span className="font-display text-2xl text-white tracking-wider">
           BEETLE

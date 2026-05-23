@@ -14,6 +14,7 @@ import {
   BoxIcon,
   CheckIcon,
 } from "../../components/icons/Icons";
+import fallbackLogo from "../../assets/bug.svg";
 
 const CATEGORIES = [
   { value: "groceries", label: "Groceries", Icon: CartIcon },
@@ -130,7 +131,15 @@ export default function RegisterPage() {
         />
         <div className="relative text-center">
           <div className="mb-6">
-            <BugIcon className="w-20 h-20 text-white" />
+            <img
+              src="/assets/images/logo.PNG"
+              alt="Beetle"
+              className="w-20 h-20 object-cover mx-auto"
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = fallbackLogo;
+              }}
+            />
           </div>
           <h2 className="font-display text-6xl text-white mb-4">JOIN BEETLE</h2>
           <p className="font-body text-white/70 text-lg max-w-xs leading-relaxed">
@@ -161,8 +170,16 @@ export default function RegisterPage() {
         <div className="w-full max-w-md">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 mb-10">
-            <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
-              <BugIcon className="w-5 h-5 text-white" />
+            <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center overflow-hidden">
+              <img
+                src="/assets/images/logo.PNG"
+                alt="Beetle"
+                className="w-8 h-8 object-cover"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = fallbackLogo;
+                }}
+              />
             </div>
             <span className="font-display text-2xl text-white tracking-wider">
               BEETLE
