@@ -12,6 +12,7 @@ import {
   BoxIcon,
   CheckIcon,
 } from "../../components/icons/Icons";
+import ThemeToggle from "../../components/ThemeToggle";
 import fallbackLogo from "../../assets/bug.svg";
 
 const CATEGORIES = [
@@ -50,6 +51,14 @@ const STATS = [
   { value: "4.8★", label: "Customer Rating" },
 ];
 
+const NAV_LINKS = [
+  { label: "Restaurants", to: "/restaurants" },
+  { label: "Groceries", to: "/groceries" },
+  { label: "Become a Rider", to: "/become-a-rider" },
+  { label: "Categories", to: "/categories" },
+  { label: "Browse as a Vendor", to: "/browse-vendor" },
+];
+
 const TESTIMONIALS = [
   {
     name: "Sarah M.",
@@ -81,7 +90,11 @@ function NavBar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-black/90 backdrop-blur-md border-b border-white/5" : ""}`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "bg-black/90 dark-theme:bg-white/95 backdrop-blur-md border-b border-white/5 dark-theme:border-gray-200"
+          : ""
+      }`}
     >
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo */}
@@ -97,29 +110,30 @@ function NavBar() {
               }}
             />
           </div>
-          <span className="font-display text-3xl text-white tracking-wider">
+          <span className="font-display text-3xl text-white dark-theme:text-gray-900 tracking-wider">
             BEETLE
           </span>
         </div>
 
         {/* Nav links */}
         <div className="hidden md:flex items-center gap-8">
-          {["How it works", "Categories", "For Vendors"].map((l) => (
-            <a
-              key={l}
-              href={`#${l.toLowerCase().replace(/ /g, "-")}`}
-              className="text-white/60 hover:text-white font-body text-sm transition-colors"
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              className="text-white/60 dark-theme:text-gray-600 hover:text-white dark-theme:hover:text-gray-900 font-body text-sm transition-colors"
             >
-              {l}
-            </a>
+              {link.label}
+            </Link>
           ))}
         </div>
 
         {/* CTAs */}
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           <Link
             to="/vendor/login"
-            className="text-white/70 hover:text-white font-heading text-sm font-semibold transition-colors hidden md:block"
+            className="text-white/70 dark-theme:text-gray-600 hover:text-white dark-theme:hover:text-gray-900 font-heading text-sm font-semibold transition-colors hidden md:block"
           >
             Vendor Login
           </Link>
@@ -138,10 +152,10 @@ function NavBar() {
 
 function HeroSection() {
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-[#0A0A0A]">
+    <section className="relative min-h-screen flex items-center overflow-hidden bg-[#0A0A0A] dark-theme:bg-white">
       {/* Background grid */}
       <div
-        className="absolute inset-0 opacity-[0.04]"
+        className="absolute inset-0 opacity-[0.04] dark-theme:opacity-[0.03]"
         style={{
           backgroundImage:
             "linear-gradient(rgba(255,255,255,.6) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.6) 1px,transparent 1px)",
@@ -165,7 +179,7 @@ function HeroSection() {
         ].map((p, i) => (
           <div
             key={p.label}
-            className="bg-white/5 border border-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-white/70 font-body"
+            className="bg-white/5 dark-theme:bg-gray-100 border border-white/10 dark-theme:border-gray-300 backdrop-blur-sm rounded-full px-4 py-2 text-sm text-white/70 dark-theme:text-gray-600 font-body"
             style={{ transform: `translateX(${i * 20}px)` }}
           >
             <div className="flex items-center gap-2">
@@ -189,7 +203,7 @@ function HeroSection() {
 
           {/* Headline */}
           <h1
-            className="font-display text-[80px] md:text-[110px] leading-[0.9] text-white mb-6 animate-fade-up"
+            className="font-display text-[80px] md:text-[110px] leading-[0.9] text-white dark-theme:text-gray-900 mb-6 animate-fade-up"
             style={{ animationDelay: "0.1s" }}
           >
             ORDER
@@ -200,14 +214,41 @@ function HeroSection() {
           </h1>
 
           <p
-            className="font-body text-white/50 text-lg md:text-xl max-w-xl leading-relaxed mb-10 animate-fade-up"
+            className="font-body text-white/50 dark-theme:text-gray-600 text-lg md:text-xl max-w-xl leading-relaxed mb-10 animate-fade-up"
             style={{ animationDelay: "0.2s" }}
           >
             Fast Food, Kitchen and groceries, clothings and foot wear; and
             electronics — from local vendors across Masaka, delivered to your
             door in under 30 minutes.
           </p>
-
+          <div
+            className="promo grid gap-4 sm:grid-cols-[1.4fr_1fr] items-center mb-12 animate-fade-up"
+            style={{ animationDelay: "0.25s" }}
+          >
+            <div className="rounded-[2rem] overflow-hidden border border-white/10 dark-theme:border-gray-300 shadow-[0_30px_120px_rgba(255,127,0,0.12)]">
+              <img
+                src="/assets/images/photo-output(3).png"
+                alt="Fast delivery"
+                className="w-full h-full min-h-[360px] object-cover"
+              />
+            </div>
+            <div className="grid gap-4">
+              <div className="rounded-[2rem] overflow-hidden border border-white/10 dark-theme:border-gray-300">
+                <img
+                  src="/assets/images/photo-output(2).png"
+                  alt="Fresh groceries"
+                  className="w-full h-full min-h-[172px] object-cover"
+                />
+              </div>
+              <div className="rounded-[2rem] overflow-hidden border border-white/10 dark-theme:border-gray-300">
+                <img
+                  src="/assets/images/photo-output(4).png"
+                  alt="Local vendor market"
+                  className="w-full h-full min-h-[172px] object-cover"
+                />
+              </div>
+            </div>
+          </div>
           {/* CTA buttons */}
           <div
             className="flex flex-wrap gap-4 animate-fade-up"
@@ -247,11 +288,11 @@ function HeroSection() {
       </div>
 
       {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/20 animate-bounce">
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/20 dark-theme:text-gray-400 animate-bounce">
         <span className="font-body text-xs tracking-widest uppercase">
           Scroll
         </span>
-        <div className="w-px h-8 bg-white/20" />
+        <div className="w-px h-8 bg-white/20 dark-theme:bg-gray-300" />
       </div>
     </section>
   );
@@ -259,13 +300,16 @@ function HeroSection() {
 
 function CategoriesSection() {
   return (
-    <section id="categories" className="py-24 bg-[#0D0D0D]">
+    <section
+      id="categories"
+      className="py-24 bg-[#0D0D0D] dark-theme:bg-gray-50"
+    >
       <div className="max-w-6xl mx-auto px-6">
         <div className="mb-12">
           <span className="font-heading text-orange-500 text-sm font-semibold uppercase tracking-widest">
             What we deliver
           </span>
-          <h2 className="font-display text-6xl md:text-7xl text-white mt-2">
+          <h2 className="font-display text-6xl md:text-7xl text-white dark-theme:text-gray-900 mt-2">
             CATEGORIES
           </h2>
         </div>
@@ -274,7 +318,7 @@ function CategoriesSection() {
           {CATEGORIES.map((c, i) => (
             <div
               key={c.label}
-              className="group bg-white/[0.03] hover:bg-orange-500/10 border border-white/[0.06]
+              className="group bg-white/[0.03] dark-theme:bg-white hover:bg-orange-500/10 dark-theme:hover:bg-orange-50 border border-white/[0.06] dark-theme:border-gray-200
                          hover:border-orange-500/40 rounded-2xl p-6 cursor-pointer
                          transition-all duration-300 hover:-translate-y-1"
               style={{ animationDelay: `${i * 0.05}s` }}
@@ -282,7 +326,7 @@ function CategoriesSection() {
               <div className="mb-3">
                 <c.Icon className="w-8 h-8 text-orange-400" />
               </div>
-              <div className="font-heading font-bold text-white group-hover:text-orange-400 transition-colors">
+              <div className="font-heading font-bold text-white dark-theme:text-gray-900 group-hover:text-orange-400 transition-colors">
                 {c.label}
               </div>
             </div>
@@ -297,7 +341,7 @@ function HowItWorksSection() {
   return (
     <section
       id="how-it-works"
-      className="py-24 bg-[#0A0A0A] relative overflow-hidden"
+      className="py-24 bg-[#0A0A0A] dark-theme:bg-white relative overflow-hidden"
     >
       <div className="absolute right-0 top-0 w-[500px] h-[500px] bg-orange-500/5 rounded-full blur-[100px]" />
       <div className="max-w-6xl mx-auto px-6 relative">
@@ -305,7 +349,7 @@ function HowItWorksSection() {
           <span className="font-heading text-orange-500 text-sm font-semibold uppercase tracking-widest">
             Simple process
           </span>
-          <h2 className="font-display text-6xl md:text-7xl text-white mt-2">
+          <h2 className="font-display text-6xl md:text-7xl text-white dark-theme:text-gray-900 mt-2">
             HOW IT WORKS
           </h2>
         </div>
@@ -319,10 +363,10 @@ function HowItWorksSection() {
               <div className="font-display text-8xl text-orange-500/15 leading-none mb-4">
                 {s.n}
               </div>
-              <h3 className="font-display text-4xl text-white mb-3">
+              <h3 className="font-display text-4xl text-white dark-theme:text-gray-900 mb-3">
                 {s.title.toUpperCase()}
               </h3>
-              <p className="font-body text-white/50 leading-relaxed">
+              <p className="font-body text-white/50 dark-theme:text-gray-600 leading-relaxed">
                 {s.body}
               </p>
             </div>
@@ -335,7 +379,10 @@ function HowItWorksSection() {
 
 function VendorCTASection() {
   return (
-    <section id="for-vendors" className="py-24 bg-[#0D0D0D]">
+    <section
+      id="for-vendors"
+      className="py-24 bg-[#0D0D0D] dark-theme:bg-gray-50"
+    >
       <div className="max-w-6xl mx-auto px-6">
         <div
           className="relative bg-gradient-to-br from-orange-500/20 via-orange-500/10 to-transparent
@@ -353,12 +400,12 @@ function VendorCTASection() {
               <BugIcon className="w-4 h-4" />
               For Businesses
             </div>
-            <h2 className="font-display text-5xl md:text-7xl text-white mb-6 leading-tight">
+            <h2 className="font-display text-5xl md:text-7xl text-white dark-theme:text-gray-900 mb-6 leading-tight">
               SELL MORE.
               <br />
               <span className="text-orange-500">REACH MORE.</span>
             </h2>
-            <p className="font-body text-white/60 text-lg leading-relaxed mb-8">
+            <p className="font-body text-white/60 dark-theme:text-gray-600 text-lg leading-relaxed mb-8">
               Register your business on Beetle and reach thousands of customers
               across Kampala. Manage orders, track sales, and grow your revenue
               — all from one dashboard.
@@ -372,7 +419,7 @@ function VendorCTASection() {
               ].map((item) => (
                 <li
                   key={item}
-                  className="flex items-center gap-3 font-body text-white/70"
+                  className="flex items-center gap-3 font-body text-white/70 dark-theme:text-gray-600"
                 >
                   <div
                     className="w-5 h-5 rounded-full bg-orange-500/20 border border-orange-500/40
@@ -409,13 +456,13 @@ function VendorCTASection() {
 
 function TestimonialsSection() {
   return (
-    <section className="py-24 bg-[#0A0A0A]">
+    <section className="py-24 bg-[#0A0A0A] dark-theme:bg-white">
       <div className="max-w-6xl mx-auto px-6">
         <div className="mb-12">
           <span className="font-heading text-orange-500 text-sm font-semibold uppercase tracking-widest">
             What people say
           </span>
-          <h2 className="font-display text-6xl md:text-7xl text-white mt-2">
+          <h2 className="font-display text-6xl md:text-7xl text-white dark-theme:text-gray-900 mt-2">
             REVIEWS
           </h2>
         </div>
@@ -423,7 +470,7 @@ function TestimonialsSection() {
           {TESTIMONIALS.map((t, i) => (
             <div
               key={i}
-              className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6"
+              className="bg-white/[0.03] dark-theme:bg-gray-50 border border-white/[0.06] dark-theme:border-gray-200 rounded-2xl p-6"
             >
               <div className="flex gap-0.5 mb-4">
                 {[...Array(t.rating)].map((_, j) => (
@@ -432,14 +479,14 @@ function TestimonialsSection() {
                   </span>
                 ))}
               </div>
-              <p className="font-body text-white/70 leading-relaxed mb-5">
+              <p className="font-body text-white/70 dark-theme:text-gray-600 leading-relaxed mb-5">
                 "{t.text}"
               </p>
               <div>
-                <p className="font-heading font-bold text-white text-sm">
+                <p className="font-heading font-bold text-white dark-theme:text-gray-900 text-sm">
                   {t.name}
                 </p>
-                <p className="font-body text-white/40 text-xs">
+                <p className="font-body text-white/40 dark-theme:text-gray-400 text-xs">
                   {t.area}, Kampala
                 </p>
               </div>
@@ -453,7 +500,7 @@ function TestimonialsSection() {
 
 function Footer() {
   return (
-    <footer className="bg-[#080808] border-t border-white/[0.06] py-16">
+    <footer className="bg-[#080808] dark-theme:bg-gray-900 border-t border-white/[0.06] dark-theme:border-gray-200 py-16">
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid md:grid-cols-4 gap-10 mb-12">
           <div className="md:col-span-2">
@@ -461,11 +508,11 @@ function Footer() {
               <div className="w-9 h-9 bg-orange-500 rounded-xl flex items-center justify-center text-lg">
                 <BugIcon className="w-5 h-5 text-white" />
               </div>
-              <span className="font-display text-3xl text-white tracking-wider">
+              <span className="font-display text-3xl text-white dark-theme:text-gray-100 tracking-wider">
                 BEETLE
               </span>
             </div>
-            <p className="font-body text-white/40 text-sm leading-relaxed max-w-xs">
+            <p className="font-body text-white/40 dark-theme:text-gray-400 text-sm leading-relaxed max-w-xs">
               Fast delivery across Kampala. From local vendors to your door in
               under 30 minutes.
             </p>
@@ -474,7 +521,7 @@ function Footer() {
                 (s) => (
                   <span
                     key={s}
-                    className="font-body text-xs text-white/30 hover:text-orange-400 cursor-pointer transition-colors"
+                    className="font-body text-xs text-white/30 dark-theme:text-gray-500 hover:text-orange-400 cursor-pointer transition-colors"
                   >
                     {s}
                   </span>
@@ -483,49 +530,49 @@ function Footer() {
             </div>
           </div>
           <div>
-            <p className="font-heading font-bold text-white text-sm mb-4 uppercase tracking-wide">
+            <p className="font-heading font-bold text-white dark-theme:text-gray-100 text-sm mb-4 uppercase tracking-wide">
               Company
             </p>
             {["About", "Careers", "Press", "Contact"].map((l) => (
               <p
                 key={l}
-                className="font-body text-white/40 text-sm mb-2 hover:text-white cursor-pointer transition-colors"
+                className="font-body text-white/40 dark-theme:text-gray-400 text-sm mb-2 hover:text-white dark-theme:hover:text-gray-900 cursor-pointer transition-colors"
               >
                 {l}
               </p>
             ))}
           </div>
           <div>
-            <p className="font-heading font-bold text-white text-sm mb-4 uppercase tracking-wide">
+            <p className="font-heading font-bold text-white dark-theme:text-gray-100 text-sm mb-4 uppercase tracking-wide">
               Vendors
             </p>
             <Link
               to="/vendor/register"
-              className="block font-body text-white/40 text-sm mb-2 hover:text-orange-400 cursor-pointer transition-colors"
+              className="block font-body text-white/40 dark-theme:text-gray-400 text-sm mb-2 hover:text-orange-400 cursor-pointer transition-colors"
             >
               Register
             </Link>
             <Link
               to="/vendor/login"
-              className="block font-body text-white/40 text-sm mb-2 hover:text-orange-400 cursor-pointer transition-colors"
+              className="block font-body text-white/40 dark-theme:text-gray-400 text-sm mb-2 hover:text-orange-400 cursor-pointer transition-colors"
             >
               Login
             </Link>
             {["Help Center", "Pricing"].map((l) => (
               <p
                 key={l}
-                className="font-body text-white/40 text-sm mb-2 hover:text-white cursor-pointer transition-colors"
+                className="font-body text-white/40 dark-theme:text-gray-400 text-sm mb-2 hover:text-white dark-theme:hover:text-gray-900 cursor-pointer transition-colors"
               >
                 {l}
               </p>
             ))}
           </div>
         </div>
-        <div className="border-t border-white/[0.06] pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="font-body text-white/20 text-xs">
+        <div className="border-t border-white/[0.06] dark-theme:border-gray-200 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="font-body text-white/20 dark-theme:text-gray-500 text-xs">
             © 2026 Beetle. All rights reserved. Kampala, Uganda.
           </p>
-          <p className="font-body text-white/20 text-xs">
+          <p className="font-body text-white/20 dark-theme:text-gray-500 text-xs">
             +256 708 617 722 · www.beetleapp.com
           </p>
         </div>

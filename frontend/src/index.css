@@ -3,17 +3,40 @@
 @tailwind utilities;
 
 @layer base {
-  * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
+  * {
+    box-sizing: border-box;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Dark theme (default) */
   body {
-    font-family: 'Barlow', sans-serif;
-    background: #0A0A0A;
+    font-family: "Barlow", sans-serif;
+    background: #0a0a0a;
     color: #fff;
     -webkit-font-smoothing: antialiased;
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
   }
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: #f8f9fa; }
-  ::-webkit-scrollbar-thumb { background: #FF6B00; border-radius: 3px; }
+
+  /* Light theme */
+  body.light-theme {
+    background: #f8f7f5;
+    color: #1a1a1a;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #f8f9fa;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #ff6b00;
+    border-radius: 3px;
+  }
 }
 
 @layer components {
@@ -30,6 +53,12 @@
     @apply bg-white/10 hover:bg-white/20 text-white font-heading font-bold
            px-6 py-3 rounded-xl transition-all duration-200 active:scale-95 border border-white/10;
   }
+
+  /* Light theme button styles */
+  .light-theme .btn-dark {
+    @apply bg-gray-200 hover:bg-gray-300 text-gray-900 border border-gray-300;
+  }
+
   .input {
     @apply w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm
            placeholder:text-white/30 focus:outline-none focus:border-orange-500 focus:ring-1
@@ -39,22 +68,78 @@
     @apply w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm
            placeholder:text-white/30 focus:outline-none focus:border-orange-500 transition-all;
   }
+
+  /* Light theme input styles */
+  .light-theme .input {
+    @apply bg-gray-100 border-gray-300 text-gray-900 placeholder:text-gray-400;
+  }
+  .light-theme .input-dark {
+    @apply bg-gray-50 border-gray-300 text-gray-900 placeholder:text-gray-400;
+  }
+
   .card {
     @apply bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm;
   }
   .card-dark {
     @apply bg-[#111111] border border-white/[0.06] rounded-2xl;
   }
+
+  /* Light theme card styles */
+  .light-theme .card {
+    @apply bg-white border border-gray-200;
+  }
+  .light-theme .card-dark {
+    @apply bg-gray-50 border border-gray-200;
+  }
+
   .badge {
     @apply inline-flex items-center gap-1 text-xs font-heading font-semibold
            px-2.5 py-1 rounded-full;
   }
-  .badge-orange { @apply badge bg-orange-500/20 text-orange-400; }
-  .badge-green  { @apply badge bg-emerald-500/20 text-emerald-400; }
-  .badge-red    { @apply badge bg-red-500/20 text-red-400; }
-  .badge-yellow { @apply badge bg-yellow-500/20 text-yellow-400; }
-  .badge-gray   { @apply badge bg-white/10 text-white/50; }
+  .badge-orange {
+    @apply badge bg-orange-500/20 text-orange-400;
+  }
+  .badge-green {
+    @apply badge bg-emerald-500/20 text-emerald-400;
+  }
+  .badge-red {
+    @apply badge bg-red-500/20 text-red-400;
+  }
+  .badge-yellow {
+    @apply badge bg-yellow-500/20 text-yellow-400;
+  }
+  .badge-gray {
+    @apply badge bg-white/10 text-white/50;
+  }
 
-  .no-scroll::-webkit-scrollbar { display: none; }
-  .no-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+  /* Light theme badge styles */
+  .light-theme .badge-orange {
+    @apply bg-orange-100 text-orange-600;
+  }
+  .light-theme .badge-green {
+    @apply bg-emerald-100 text-emerald-600;
+  }
+  .light-theme .badge-red {
+    @apply bg-red-100 text-red-600;
+  }
+  .light-theme .badge-yellow {
+    @apply bg-yellow-100 text-yellow-600;
+  }
+  .light-theme .badge-gray {
+    @apply bg-gray-200 text-gray-600;
+  }
+
+  .no-scroll::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scroll {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Light theme text colors */
+  .light-theme {
+    --tw-text-opacity: 1;
+    color: rgba(26, 26, 26, var(--tw-text-opacity));
+  }
 }

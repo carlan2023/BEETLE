@@ -1,5 +1,10 @@
 import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import LandingPage from "./pages/public/LandingPage";
+import RestaurantsPage from "./pages/public/RestaurantsPage";
+import GroceriesPage from "./pages/public/GroceriesPage";
+import BecomeRiderPage from "./pages/public/BecomeRiderPage";
+import CategoriesPage from "./pages/public/CategoriesPage";
+import BrowseVendorPage from "./pages/public/BrowseVendorPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 import LoginPage from "./pages/auth/LoginPage";
 import DashboardPage from "./pages/vendor/DashboardPage";
@@ -46,6 +51,11 @@ export default function App() {
     <Routes>
       {/* Public */}
       <Route path="/" element={<LandingPage />} />
+      <Route path="/restaurants" element={<RestaurantsPage />} />
+      <Route path="/groceries" element={<GroceriesPage />} />
+      <Route path="/become-a-rider" element={<BecomeRiderPage />} />
+      <Route path="/categories" element={<CategoriesPage />} />
+      <Route path="/browse-vendor" element={<BrowseVendorPage />} />
 
       {/* Auth */}
       <Route

@@ -79,6 +79,7 @@ app.use("/api/vendor", require("./routes/vendor"));
 app.use("/api/products", require("./routes/products"));
 app.use("/api/orders", require("./routes/orders"));
 app.use("/api/store", require("./routes/store"));
+app.use("/api/public", require("./routes/public"));
 app.use("/api/admin", require("./routes/admin"));
 
 // ── Health check ──────────────────────────────────────────────────────────────
