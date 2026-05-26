@@ -1,5 +1,6 @@
 require("dotenv").config();
 const express = require("express");
+const mongoose = require("mongoose");
 const path = require("path");
 const compression = require("compression");
 const cors = require("cors");
@@ -88,6 +89,9 @@ app.get("/api/health", (req, res) => {
     success: true,
     message: "Beetle API is running 🪲",
     env: process.env.NODE_ENV,
+    mongodb:
+      mongoose.connection.readyState === 1 ? "✅ Connected" : "❌ Disconnected",
+    dbHost: mongoose.connection.host || "Not connected",
   });
 });
 

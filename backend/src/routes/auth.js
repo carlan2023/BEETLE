@@ -1,14 +1,13 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const jwt = require('jsonwebtoken');
-const { body, validationResult } = require('express-validator');
-const Vendor = require('../models/Vendor');
-const { protect } = require('../middleware/auth');
-
+const jwt = require("jsonwebtoken");
+const { body, validationResult } = require("express-validator");
+const Vendor = require("../models/Vendor");
+const { protect } = require("../middleware/auth");
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+    expiresIn: process.env.JWT_EXPIRES_IN || "7d",
   });
 
 const sendToken = (vendor, statusCode, res) => {
@@ -22,15 +21,26 @@ const sendToken = (vendor, statusCode, res) => {
 
 // ── POST /api/auth/register ───────────────────────────────────────────────────
 router.post(
-  '/register',
+  "/register",
   [
-    body('businessName').trim().notEmpty().withMessage('Business name is required'),
-    body('ownerName').trim().notEmpty().withMessage('Owner name is required'),
-    body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
-    body('phone').trim().notEmpty().withMessage('Phone number is required'),
-    body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
-    body('category').notEmpty().withMessage('Business category is required'),
-    body('address').trim().notEmpty().withMessage('Business address is required'),
+    body("businessName")
+      .trim()
+      .notEmpty()
+      .withMessage("Business name is required"),
+    body("ownerName").trim().notEmpty().withMessage("Owner name is required"),
+    body("email")
+      .isEmail()
+      .normalizeEmail()
+      .withMessage("Valid email is required"),
+    body("phone").trim().notEmpty().withMessage("Phone number is required"),
+    body("password")
+      .isLength({ min: 8 })
+      .withMessage("Password must be at least 8 characters"),
+    body("category").notEmpty().withMessage("Business category is required"),
+    body("address")
+      .trim()
+      .notEmpty()
+      .withMessage("Business address is required"),
   ],
   async (req, res) => {
     // Validate
@@ -40,12 +50,26 @@ router.post(
     }
 
     try {
-      const { businessName, ownerName, email, phone, password, category, address, description } = req.body;
+      const {
+        businessName,
+        ownerName,
+        email,
+        phone,
+        password,
+        category,
+        address,
+        description,
+      } = req.body;
 
       // Check duplicate email
       const existing = await Vendor.findOne({ email });
       if (existing) {
-        return res.status(409).json({ success: false, message: 'An account with this email already exists.' });
+        return res
+          .status(409)
+          .json({
+            success: false,
+            message: "An account with this email already exists.",
+          });
       }
 
       // Create vendor (status: pending — admin must approve)
@@ -57,24 +81,51 @@ router.post(
         password,
         category,
         address,
-        description: description || '',
-        status: 'pending',
+        description: description || "",
+        status: "pending",
       });
 
       sendToken(vendor, 201, res);
     } catch (err) {
-      console.error('Register error:', err);
-      res.status(500).json({ success: false, message: 'Registration failed. Please try again.' });
+      console.error("❌ Register error:", {
+        message: err.message,
+        stack: err.stack,
+        code: err.code,
+        validationErrors: err.errors,
+      });
+
+      // Handle specific MongoDB/Mongoose errors
+      if (err.code === 11000) {
+        return res
+          .status(409)
+          .json({ success: false, message: "Email already exists." });
+      }
+      if (err.name === "ValidationError") {
+        const messages = Object.values(err.errors).map((e) => e.message);
+        return res
+          .status(400)
+          .json({ success: false, message: messages.join(", ") });
+      }
+
+      res
+        .status(500)
+        .json({
+          success: false,
+          message: "Registration failed. Please try again.",
+        });
     }
-  }
+  },
 );
 
 // ── POST /api/auth/login ──────────────────────────────────────────────────────
 router.post(
-  '/login',
+  "/login",
   [
-    body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
-    body('password').notEmpty().withMessage('Password is required'),
+    body("email")
+      .isEmail()
+      .normalizeEmail()
+      .withMessage("Valid email is required"),
+    body("password").notEmpty().withMessage("Password is required"),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -86,42 +137,52 @@ router.post(
       const { email, password } = req.body;
 
       // Find vendor + include password field (normally hidden)
-      const vendor = await Vendor.findOne({ email }).select('+password');
+      const vendor = await Vendor.findOne({ email }).select("+password");
       if (!vendor) {
-        return res.status(401).json({ success: false, message: 'Invalid email or password.' });
+        return res
+          .status(401)
+          .json({ success: false, message: "Invalid email or password." });
       }
 
       // Check password
       const isMatch = await vendor.comparePassword(password);
       if (!isMatch) {
-        return res.status(401).json({ success: false, message: 'Invalid email or password.' });
+        return res
+          .status(401)
+          .json({ success: false, message: "Invalid email or password." });
       }
 
       sendToken(vendor, 200, res);
     } catch (err) {
-      console.error('Login error:', err);
-      res.status(500).json({ success: false, message: 'Login failed. Please try again.' });
+      console.error("Login error:", err);
+      res
+        .status(500)
+        .json({ success: false, message: "Login failed. Please try again." });
     }
-  }
+  },
 );
 
 // ── GET /api/auth/me ──────────────────────────────────────────────────────────
-router.get('/me', protect, async (req, res) => {
+router.get("/me", protect, async (req, res) => {
   res.json({ success: true, vendor: req.vendor.toPublicJSON() });
 });
 
 // ── POST /api/auth/logout ─────────────────────────────────────────────────────
-router.post('/logout', protect, (req, res) => {
-  res.json({ success: true, message: 'Logged out successfully.' });
+router.post("/logout", protect, (req, res) => {
+  res.json({ success: true, message: "Logged out successfully." });
 });
 
 // ── POST /api/auth/change-password ───────────────────────────────────────────
 router.post(
-  '/change-password',
+  "/change-password",
   protect,
   [
-    body('currentPassword').notEmpty().withMessage('Current password is required'),
-    body('newPassword').isLength({ min: 8 }).withMessage('New password must be at least 8 characters'),
+    body("currentPassword")
+      .notEmpty()
+      .withMessage("Current password is required"),
+    body("newPassword")
+      .isLength({ min: 8 })
+      .withMessage("New password must be at least 8 characters"),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -130,20 +191,24 @@ router.post(
     }
 
     try {
-      const vendor = await Vendor.findById(req.vendor._id).select('+password');
+      const vendor = await Vendor.findById(req.vendor._id).select("+password");
       const isMatch = await vendor.comparePassword(req.body.currentPassword);
       if (!isMatch) {
-        return res.status(401).json({ success: false, message: 'Current password is incorrect.' });
+        return res
+          .status(401)
+          .json({ success: false, message: "Current password is incorrect." });
       }
 
       vendor.password = req.body.newPassword;
       await vendor.save();
 
-      res.json({ success: true, message: 'Password updated successfully.' });
+      res.json({ success: true, message: "Password updated successfully." });
     } catch (err) {
-      res.status(500).json({ success: false, message: 'Failed to update password.' });
+      res
+        .status(500)
+        .json({ success: false, message: "Failed to update password." });
     }
-  }
+  },
 );
 
 module.exports = router;
