@@ -20,6 +20,10 @@ jobs:
     defaults:
       run:
         working-directory: backend
+    env:
+      # Prevent mongodb-memory-server postinstall from attempting to download
+      # large MongoDB binaries in CI; we use the job mongo service instead.
+      MONGOMS_SKIP_DOWNLOAD: "true"
     steps:
       - uses: actions/checkout@v4
 
@@ -32,6 +36,8 @@ jobs:
 
       - name: Install dependencies
         run: npm ci || npm install
+        env:
+          MONGOMS_SKIP_DOWNLOAD: "true"
 
       - name: Check syntax (node --check)
         run: node --check src/server.js
@@ -41,6 +47,7 @@ jobs:
           NODE_ENV: test
           MONGODB_URI: mongodb://localhost:27017/beetle_test
           JWT_SECRET: ${{ secrets.JWT_SECRET_TEST }}
+          MONGOMS_SKIP_DOWNLOAD: "true"
         run: npm test --if-present
 
   frontend:
