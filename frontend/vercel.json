@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://beetle-api.railway.app/api/$1"
+      "destination": "https://beetle-production-f62a.up.railway.app"
     },
     {
       "source": "/(.*)",

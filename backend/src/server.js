@@ -1,4 +1,10 @@
 require("dotenv").config();
+
+if (!process.env.JWT_SECRET) {
+  console.error("Missing required environment variable: JWT_SECRET");
+  process.exit(1);
+}
+
 const connectDB = require("./config/db");
 const app = require("./app");
 
