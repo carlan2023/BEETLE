@@ -93,7 +93,6 @@ const vendorSchema = new mongoose.Schema(
 
 // ── Indexes ───────────────────────────────────────────────────────────────────
 vendorSchema.index({ location: '2dsphere' });
-vendorSchema.index({ email: 1 });
 vendorSchema.index({ status: 1 });
 
 // ── Virtual: product count ────────────────────────────────────────────────────
