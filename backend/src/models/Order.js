@@ -68,6 +68,5 @@ orderSchema.pre('save', async function (next) {
 });
 
 orderSchema.index({ vendorId: 1, status: 1 });
-orderSchema.index({ orderNumber: 1 });
 
 module.exports = mongoose.model('Order', orderSchema);

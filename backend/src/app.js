@@ -10,6 +10,14 @@ const mongoose = require("mongoose");
 
 const app = express();
 
+// Provide a safe default JWT secret in test environment to avoid
+// module import order causing `jsonwebtoken` to fail when tests
+// set env vars after some modules are loaded. Tests still should
+// set `process.env.JWT_SECRET` but this fallback makes CI robust.
+if (process.env.NODE_ENV === "test" && !process.env.JWT_SECRET) {
+  process.env.JWT_SECRET = "testsecret";
+}
+
 if (process.env.NODE_ENV === "production") {
   app.set("trust proxy", 1);
 }
