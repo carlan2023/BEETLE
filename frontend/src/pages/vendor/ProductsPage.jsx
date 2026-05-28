@@ -41,6 +41,16 @@ const ICONS = {
   pharmacy: PharmacyIcon,
   other: BoxIcon,
 };
+const CATEGORY_LABELS = {
+  groceries: "Groceries",
+  food_drinks: "Food & Drinks",
+  clothing: "Clothing",
+  footwear: "Footwear",
+  electronics: "Electronics",
+  home_living: "Home & Living",
+  pharmacy: "Pharmacy",
+  other: "Other",
+};
 const EMPTY = {
   name: "",
   price: "",
@@ -137,7 +147,7 @@ function ProductModal({ product, onClose, onSaved }) {
               <option value="">Select category</option>
               {CATEGORIES.map((c) => (
                 <option key={c} value={c}>
-                  {EMOJI[c]} {c.replace("_", " ")}
+                  {CATEGORY_LABELS[c] || c.replace(/_/g, " ")}
                 </option>
               ))}
             </select>

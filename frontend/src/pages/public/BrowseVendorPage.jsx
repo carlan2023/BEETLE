@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import {
-  BugIcon,
   CheckIcon,
-  PhoneIcon,
-  BoxIcon,
 } from "../../components/icons/Icons";
+import { browseVendors } from "../../services/publicApi";
 
 const BENEFITS = [
   "Create your shop in minutes",
@@ -14,6 +14,32 @@ const BENEFITS = [
 ];
 
 export default function BrowseVendorPage() {
+  const [vendors, setVendors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => {
+    const fetchVendors = async () => {
+      try {
+        setLoading(true);
+        const result = await browseVendors(page, 12);
+        if (result.success) {
+          setVendors(result.data);
+          setTotalPages(result.pagination.pages);
+        } else {
+          toast.error(result.message);
+        }
+      } catch {
+        toast.error("Failed to fetch vendors");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVendors();
+  }, [page]);
+
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
       <div className="max-w-6xl mx-auto px-6 py-24">

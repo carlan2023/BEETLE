@@ -17,8 +17,22 @@ const STATUS_META = {
     next: ["READY_FOR_PICKUP", "CANCELLED"],
   },
   REJECTED: { label: "Rejected", cls: "badge-red", next: [] },
-  READY_FOR_PICKUP: { label: "Ready", cls: "badge-orange", next: [] },
-  IN_TRANSIT: { label: "In Transit", cls: "badge-orange", next: ["DELIVERED"] },
+  READY_FOR_PICKUP: {
+    label: "Ready",
+    cls: "badge-orange",
+    next: ["ASSIGNED"],
+  },
+  ASSIGNED: { label: "Assigned", cls: "badge-orange", next: ["PICKED_UP"] },
+  PICKED_UP: {
+    label: "Picked Up",
+    cls: "badge-orange",
+    next: ["IN_TRANSIT"],
+  },
+  IN_TRANSIT: {
+    label: "In Transit",
+    cls: "badge-orange",
+    next: ["DELIVERED"],
+  },
   DELIVERED: { label: "Delivered", cls: "badge-green", next: [] },
   CANCELLED: { label: "Cancelled", cls: "badge-gray", next: [] },
 };
@@ -28,6 +42,8 @@ const FILTERS = [
   "PENDING",
   "ACCEPTED",
   "READY_FOR_PICKUP",
+  "ASSIGNED",
+  "PICKED_UP",
   "IN_TRANSIT",
   "DELIVERED",
   "REJECTED",

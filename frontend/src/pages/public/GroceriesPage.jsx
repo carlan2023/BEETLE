@@ -1,5 +1,8 @@
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { CartIcon, PharmacyIcon, BoxIcon } from "../../components/icons/Icons";
+import { getGroceries } from "../../services/publicApi";
 
 const FEATURES = [
   {
@@ -23,6 +26,32 @@ const FEATURES = [
 ];
 
 export default function GroceriesPage() {
+  const [groceries, setGroceries] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => {
+    const fetchGroceries = async () => {
+      try {
+        setLoading(true);
+        const result = await getGroceries(page, 12);
+        if (result.success) {
+          setGroceries(result.data);
+          setTotalPages(result.pagination.pages);
+        } else {
+          toast.error(result.message);
+        }
+      } catch {
+        toast.error("Failed to fetch grocery stores");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGroceries();
+  }, [page]);
+
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
       <div className="max-w-6xl mx-auto px-6 py-24">
