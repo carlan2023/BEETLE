@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const Product = require('../models/Product');
-const { protect, requireApproved } = require('../middleware/auth');
+const { protect } = require('../middleware/auth');
 
 // All product routes require auth
 router.use(protect);
@@ -37,7 +37,6 @@ router.get('/', async (req, res) => {
 // ── POST /api/products ────────────────────────────────────────────────────────
 router.post(
   '/',
-  requireApproved,
   [
     body('name').trim().notEmpty().withMessage('Product name is required'),
     body('price').isFloat({ min: 0 }).withMessage('Valid price is required'),
@@ -70,7 +69,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // ── PUT /api/products/:id ─────────────────────────────────────────────────────
-router.put('/:id', requireApproved, async (req, res) => {
+router.put('/:id', async (req, res) => {
   try {
     const product = await Product.findOneAndUpdate(
       { _id: req.params.id, vendorId: req.vendor._id },
@@ -85,7 +84,7 @@ router.put('/:id', requireApproved, async (req, res) => {
 });
 
 // ── DELETE /api/products/:id ──────────────────────────────────────────────────
-router.delete('/:id', requireApproved, async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     const product = await Product.findOneAndDelete({ _id: req.params.id, vendorId: req.vendor._id });
     if (!product) return res.status(404).json({ success: false, message: 'Product not found.' });
@@ -97,7 +96,7 @@ router.delete('/:id', requireApproved, async (req, res) => {
 
 // ── PATCH /api/products/:id/toggle ───────────────────────────────────────────
 // Quick toggle availability on/off
-router.patch('/:id/toggle', requireApproved, async (req, res) => {
+router.patch('/:id/toggle', async (req, res) => {
   try {
     const product = await Product.findOne({ _id: req.params.id, vendorId: req.vendor._id });
     if (!product) return res.status(404).json({ success: false, message: 'Product not found.' });
