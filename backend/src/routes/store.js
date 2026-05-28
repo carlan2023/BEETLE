@@ -5,12 +5,33 @@ const Product = require('../models/Product');
 const Order = require('../models/Order');
 const { body, validationResult } = require('express-validator');
 
+const normalizeCategory = (value) => {
+  if (!value) return null;
+
+  const normalized = value.toString().trim().toLowerCase().replace(/\s*&\s*/g, "_").replace(/\s+/g, "_");
+  const aliases = {
+    restaurants: "food_drinks",
+    food_drinks: "food_drinks",
+    groceries: "groceries",
+    clothing: "clothing",
+    footwear: "footwear",
+    electronics: "electronics",
+    home_living: "home_living",
+    pharmacy: "pharmacy",
+    books: "other",
+    other: "other",
+  };
+
+  return aliases[normalized] || normalized;
+};
+
 // ── GET /api/store/vendors ────────────────────────────────────────────────────
 router.get('/vendors', async (req, res) => {
   try {
     const { category, search } = req.query;
     const filter = { status: 'approved', isActive: true };
-    if (category) filter.category = category;
+    const normalizedCategory = normalizeCategory(category);
+    if (normalizedCategory) filter.category = normalizedCategory;
     if (search) filter.$text = { $search: search };
 
     const vendors = await Vendor.find(filter)
