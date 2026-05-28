@@ -4,6 +4,37 @@ const Vendor = require("../models/Vendor");
 const Product = require("../models/Product");
 const { body, validationResult } = require("express-validator");
 
+const CATEGORY_LABELS = {
+  groceries: "Groceries",
+  food_drinks: "Food & Drinks",
+  clothing: "Clothing",
+  footwear: "Footwear",
+  electronics: "Electronics",
+  home_living: "Home & Living",
+  pharmacy: "Pharmacy",
+  other: "Other",
+};
+
+const normalizeCategory = (value) => {
+  if (!value) return null;
+
+  const normalized = value.toString().trim().toLowerCase().replace(/\s*&\s*/g, "_").replace(/\s+/g, "_");
+  const aliases = {
+    restaurants: "food_drinks",
+    food_drinks: "food_drinks",
+    groceries: "groceries",
+    clothing: "clothing",
+    footwear: "footwear",
+    electronics: "electronics",
+    home_living: "home_living",
+    pharmacy: "pharmacy",
+    books: "other",
+    other: "other",
+  };
+
+  return aliases[normalized] || normalized;
+};
+
 // ── GET /api/public/restaurants ───────────────────────────────────────────────
 // Browse restaurants (vendors with Food & Drinks category)
 router.get("/restaurants", async (req, res) => {
@@ -15,7 +46,7 @@ router.get("/restaurants", async (req, res) => {
       Vendor.find({
         status: "approved",
         isActive: true,
-        category: { $in: ["Food & Drinks", "Restaurants"] },
+        category: "food_drinks",
       })
         .select(
           "businessName description logoUrl coverUrl category address city rating reviewCount isOpen deliveryTimeMin deliveryTimeMax",
@@ -26,7 +57,7 @@ router.get("/restaurants", async (req, res) => {
       Vendor.countDocuments({
         status: "approved",
         isActive: true,
-        category: { $in: ["Food & Drinks", "Restaurants"] },
+        category: "food_drinks",
       }),
     ]);
 
@@ -57,7 +88,7 @@ router.get("/groceries", async (req, res) => {
       Vendor.find({
         status: "approved",
         isActive: true,
-        category: "Groceries",
+        category: "groceries",
       })
         .select(
           "businessName description logoUrl coverUrl category address city rating reviewCount isOpen deliveryTimeMin deliveryTimeMax",
@@ -68,7 +99,7 @@ router.get("/groceries", async (req, res) => {
       Vendor.countDocuments({
         status: "approved",
         isActive: true,
-        category: "Groceries",
+        category: "groceries",
       }),
     ]);
 
@@ -92,20 +123,11 @@ router.get("/groceries", async (req, res) => {
 // Get all product categories with vendor counts
 router.get("/categories", async (req, res) => {
   try {
-    const categoryList = [
-      "Groceries",
-      "Food & Drinks",
-      "Footwear",
-      "Clothing",
-      "Electronics",
-      "Home & Living",
-      "Pharmacy",
-      "Books",
-    ];
+    const categoryList = Object.keys(CATEGORY_LABELS);
 
     const categoryCounts = await Promise.all(
       categoryList.map(async (category) => ({
-        label: category,
+        label: CATEGORY_LABELS[category],
         count: await Vendor.countDocuments({
           status: "approved",
           isActive: true,
@@ -130,7 +152,8 @@ router.get("/browse-vendors", async (req, res) => {
     const skip = (Number(page) - 1) * Number(limit);
     const filter = { status: "approved", isActive: true };
 
-    if (category) filter.category = category;
+    const normalizedCategory = normalizeCategory(category);
+    if (normalizedCategory) filter.category = normalizedCategory;
 
     const [vendors, total] = await Promise.all([
       Vendor.find(filter)
