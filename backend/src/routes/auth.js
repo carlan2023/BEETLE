@@ -61,15 +61,21 @@ router.post(
         description,
       } = req.body;
 
+      console.log("📝 Vendor registration attempt:", {
+        email,
+        businessName,
+        phone,
+        origin: req.get("origin"),
+        userAgent: req.get("user-agent")?.substring(0, 50),
+      });
+
       // Check duplicate email
       const existing = await Vendor.findOne({ email });
       if (existing) {
-        return res
-          .status(409)
-          .json({
-            success: false,
-            message: "An account with this email already exists.",
-          });
+        return res.status(409).json({
+          success: false,
+          message: "An account with this email already exists.",
+        });
       }
 
       // Create vendor (status: pending — admin must approve)
@@ -85,6 +91,10 @@ router.post(
         status: "pending",
       });
 
+      console.log("✅ Vendor registered successfully:", {
+        email,
+        id: vendor._id,
+      });
       sendToken(vendor, 201, res);
     } catch (err) {
       console.error("❌ Register error:", {
@@ -92,6 +102,7 @@ router.post(
         stack: err.stack,
         code: err.code,
         validationErrors: err.errors,
+        origin: req.get("origin"),
       });
 
       // Handle specific MongoDB/Mongoose errors
@@ -107,12 +118,10 @@ router.post(
           .json({ success: false, message: messages.join(", ") });
       }
 
-      res
-        .status(500)
-        .json({
-          success: false,
-          message: "Registration failed. Please try again.",
-        });
+      res.status(500).json({
+        success: false,
+        message: "Registration failed. Please try again.",
+      });
     }
   },
 );
