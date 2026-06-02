@@ -107,6 +107,8 @@ const publicPath = path.join(__dirname, "..", "public");
 app.use(express.static(publicPath, { maxAge: "30d", index: false }));
 
 app.use("/api/auth", require("./routes/auth"));
+app.use("/api/customer", require("./routes/customer"));
+app.use("/api/cart", require("./routes/cart"));
 app.use("/api/vendor", require("./routes/vendor"));
 app.use("/api/products", require("./routes/products"));
 app.use("/api/orders", require("./routes/orders"));
