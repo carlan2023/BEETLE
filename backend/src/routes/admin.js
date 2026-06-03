@@ -189,8 +189,7 @@ router.get("/orders/recent", protectAdmin, async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(limit)
       .populate("vendorId", "businessName")
-      .populate("customerId", "firstName lastName")
-      .select("_id vendorId customerId amount status createdAt");
+      .select("_id orderNumber vendorId customer total status createdAt");
 
     res.json({ success: true, data: orders });
   } catch (err) {
@@ -384,15 +383,15 @@ router.get("/orders/export/csv", protectAdmin, async (req, res) => {
 
     const orders = await Order.find(filter)
       .populate("vendorId", "businessName")
-      .populate("customerId", "firstName lastName email")
       .sort({ createdAt: -1 });
 
     const headers = [
       "Order ID",
+      "Order Number",
       "Vendor",
       "Customer",
-      "Email",
-      "Amount",
+      "Phone",
+      "Total",
       "Status",
       "Payment Status",
       "Delivery Address",
@@ -401,13 +400,14 @@ router.get("/orders/export/csv", protectAdmin, async (req, res) => {
 
     const rows = orders.map((o) => [
       o._id.toString(),
+      o.orderNumber || "N/A",
       `"${o.vendorId?.businessName || "N/A"}"`,
-      `"${o.customerId?.firstName} ${o.customerId?.lastName}"`,
-      o.customerId?.email || "N/A",
-      o.amount,
+      `"${o.customer?.name || "N/A"}"`,
+      o.customer?.phone || "N/A",
+      o.total,
       o.status,
       o.paymentStatus,
-      `"${o.deliveryAddress}"`,
+      `"${o.customer?.address || "N/A"}"`,
       new Date(o.createdAt).toLocaleDateString(),
     ]);
 
@@ -426,3 +426,5 @@ router.get("/orders/export/csv", protectAdmin, async (req, res) => {
       .json({ success: false, message: "Failed to export orders" });
   }
 });
+
+module.exports = router;

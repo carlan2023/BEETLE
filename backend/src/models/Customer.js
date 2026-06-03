@@ -99,7 +99,6 @@ const customerSchema = new mongoose.Schema(
 );
 
 // ── Indexes ───────────────────────────────────────────────────────
-customerSchema.index({ email: 1 });
 customerSchema.index({ location: "2dsphere" });
 
 // ── Virtual: order count ───────────────────────────────────────────
