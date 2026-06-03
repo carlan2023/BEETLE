@@ -136,19 +136,21 @@ function NavBar() {
         <div className="flex items-center gap-3">
           <ThemeToggle />
 
-          {/* Cart Icon */}
-          <Link
-            to="/cart"
-            className="relative text-white/70 dark-theme:text-gray-600 hover:text-white dark-theme:hover:text-gray-900 p-2 transition-colors"
-            title="Shopping Cart"
-          >
-            <ShoppingCart size={22} />
-            {cart && cart.length > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
-                {cart.length}
-              </span>
-            )}
-          </Link>
+          {/* Cart Icon - Only show if customer is logged in */}
+          {customer && (
+            <Link
+              to="/cart"
+              className="relative text-white/70 dark-theme:text-gray-600 hover:text-white dark-theme:hover:text-gray-900 p-2 transition-colors"
+              title="Shopping Cart"
+            >
+              <ShoppingCart size={22} />
+              {cart && cart.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
+                  {cart.length}
+                </span>
+              )}
+            </Link>
+          )}
 
           {customer ? (
             <>

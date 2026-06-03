@@ -40,6 +40,13 @@ export const searchPublic = async (query, type = "all", limit = 10) => {
   return response.data;
 };
 
+export const getProducts = async (page = 1, limit = 12, category = null) => {
+  const response = await api.get("/public/products", {
+    params: { page, limit, ...(category && { category }) },
+  });
+  return response.data;
+};
+
 export default {
   getRestaurants,
   getGroceries,
@@ -47,4 +54,5 @@ export default {
   browseVendors,
   signupAsRider,
   searchPublic,
+  getProducts,
 };
