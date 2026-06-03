@@ -60,25 +60,6 @@ function CustomerProtectedRoute({ children }) {
   const token = useCustomerAuthStore((s) => s.token);
   if (!token) return <Navigate to="/customer/login" replace />;
   return children;
-      <Route path="/cart" element={<CartPage />} />
-
-      {/* Customer Auth */}
-      <Route
-        path="/customer/register"
-        element={
-          <CustomerGuestRoute>
-            <CustomerRegisterPage />
-          </CustomerGuestRoute>
-        }
-      />
-      <Route
-        path="/customer/login"
-        element={
-          <CustomerGuestRoute>
-            <CustomerLoginPage />
-          </CustomerGuestRoute>
-        }
-      />
 }
 
 export default function App() {
@@ -125,6 +106,31 @@ export default function App() {
         <Route path="orders" element={<OrdersPage />} />
         <Route path="profile" element={<ProfilePage />} />
       </Route>
+
+      <Route
+        path="/cart"
+        element={
+          <CustomerProtectedRoute>
+            <CartPage />
+          </CustomerProtectedRoute>
+        }
+      />
+      <Route
+        path="/customer/register"
+        element={
+          <CustomerGuestRoute>
+            <CustomerRegisterPage />
+          </CustomerGuestRoute>
+        }
+      />
+      <Route
+        path="/customer/login"
+        element={
+          <CustomerGuestRoute>
+            <CustomerLoginPage />
+          </CustomerGuestRoute>
+        }
+      />
 
       {/* Admin */}
       <Route path="/admin">
