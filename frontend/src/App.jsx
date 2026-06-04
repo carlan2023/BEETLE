@@ -1,11 +1,14 @@
-import { Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { Routes, Route, Navigate, Outlet, useLocation } from "react-router-dom";
 import LandingPage from "./pages/public/LandingPage";
+import ShopPage from "./pages/public/ShopPage";
+import VendorStorePage from "./pages/public/VendorStorePage";
 import RestaurantsPage from "./pages/public/RestaurantsPage";
 import GroceriesPage from "./pages/public/GroceriesPage";
 import BecomeRiderPage from "./pages/public/BecomeRiderPage";
 import CategoriesPage from "./pages/public/CategoriesPage";
 import BrowseVendorPage from "./pages/public/BrowseVendorPage";
 import CartPage from "./pages/public/CartPage";
+import CustomerOrdersPage from "./pages/public/CustomerOrdersPage";
 import CustomerLoginPage from "./pages/public/CustomerLoginPage";
 import CustomerRegisterPage from "./pages/public/CustomerRegisterPage";
 import RegisterPage from "./pages/auth/RegisterPage";
@@ -57,8 +60,17 @@ function CustomerGuestRoute({ children }) {
 }
 
 function CustomerProtectedRoute({ children }) {
+  const location = useLocation();
   const token = useCustomerAuthStore((s) => s.token);
-  if (!token) return <Navigate to="/customer/login" replace />;
+  if (!token) {
+    return (
+      <Navigate
+        to="/customer/login"
+        replace
+        state={{ from: location.pathname }}
+      />
+    );
+  }
   return children;
 }
 
@@ -67,6 +79,8 @@ export default function App() {
     <Routes>
       {/* Public */}
       <Route path="/" element={<LandingPage />} />
+      <Route path="/shop" element={<ShopPage />} />
+      <Route path="/shop/vendors/:vendorId" element={<VendorStorePage />} />
       <Route path="/restaurants" element={<RestaurantsPage />} />
       <Route path="/groceries" element={<GroceriesPage />} />
       <Route path="/become-a-rider" element={<BecomeRiderPage />} />
@@ -112,6 +126,14 @@ export default function App() {
         element={
           <CustomerProtectedRoute>
             <CartPage />
+          </CustomerProtectedRoute>
+        }
+      />
+      <Route
+        path="/customer/orders"
+        element={
+          <CustomerProtectedRoute>
+            <CustomerOrdersPage />
           </CustomerProtectedRoute>
         }
       />
