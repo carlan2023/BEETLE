@@ -3,6 +3,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { HomeIcon, PhoneIcon, CheckIcon } from "../../components/icons/Icons";
 import { signupAsRider } from "../../services/publicApi";
+import { getApiErrorMessage } from "../../services/api";
 
 const STEPS = [
   {
@@ -67,7 +68,10 @@ export default function BecomeRiderPage() {
         toast.error(result.message);
       }
     } catch (err) {
-      toast.error("Failed to submit rider application");
+      console.error("Failed to submit rider application:", err);
+      toast.error(
+        getApiErrorMessage(err, "Failed to submit rider application."),
+      );
     } finally {
       setLoading(false);
     }
