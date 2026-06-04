@@ -5,6 +5,7 @@ import {
   CheckIcon,
 } from "../../components/icons/Icons";
 import { browseVendors } from "../../services/publicApi";
+import { getApiErrorMessage } from "../../services/api";
 
 const BENEFITS = [
   "Create your shop in minutes",
@@ -30,8 +31,9 @@ export default function BrowseVendorPage() {
         } else {
           toast.error(result.message);
         }
-      } catch {
-        toast.error("Failed to fetch vendors");
+      } catch (err) {
+        console.error("Failed to fetch vendors:", err);
+        toast.error(getApiErrorMessage(err, "Failed to fetch vendors."));
       } finally {
         setLoading(false);
       }
