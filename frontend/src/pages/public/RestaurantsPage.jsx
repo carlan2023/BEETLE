@@ -8,6 +8,7 @@ import {
   HomeIcon,
 } from "../../components/icons/Icons";
 import { getRestaurants } from "../../services/publicApi";
+import { getApiErrorMessage } from "../../services/api";
 
 const FEATURES = [
   {
@@ -48,7 +49,10 @@ export default function RestaurantsPage() {
           toast.error(result.message);
         }
       } catch (err) {
-        toast.error("Failed to fetch restaurants");
+        console.error("Failed to fetch restaurants:", err);
+        toast.error(
+          getApiErrorMessage(err, "Failed to fetch restaurants."),
+        );
       } finally {
         setLoading(false);
       }
