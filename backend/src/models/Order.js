@@ -14,6 +14,12 @@ const orderSchema = new mongoose.Schema(
       type: String,
       unique: true,
     },
+    customerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Customer",
+      default: null,
+      index: true,
+    },
     vendorId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Vendor',
