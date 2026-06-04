@@ -3,7 +3,8 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const { body, validationResult } = require("express-validator");
 const Customer = require("../models/Customer");
-const { protect, protectCustomer } = require("../middleware/auth");
+const Order = require("../models/Order");
+const { protectCustomer } = require("../middleware/auth");
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -155,6 +156,39 @@ router.post(
 // ── GET /api/customer/me ──────────────────────────────────────────────────
 router.get("/me", protectCustomer, async (req, res) => {
   res.json({ success: true, customer: req.customer.toPublicJSON() });
+});
+
+// GET /api/customer/orders
+router.get("/orders", protectCustomer, async (req, res) => {
+  try {
+    const { page = 1, limit = 20 } = req.query;
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const [orders, total] = await Promise.all([
+      Order.find({ customerId: req.customer._id })
+        .populate("vendorId", "businessName phone")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(Number(limit)),
+      Order.countDocuments({ customerId: req.customer._id }),
+    ]);
+
+    res.json({
+      success: true,
+      data: orders,
+      pagination: {
+        total,
+        page: Number(page),
+        pages: Math.ceil(total / Number(limit)),
+      },
+    });
+  } catch (err) {
+    console.error("Customer orders error:", err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch your orders.",
+    });
+  }
 });
 
 // ── POST /api/customer/logout ─────────────────────────────────────────────

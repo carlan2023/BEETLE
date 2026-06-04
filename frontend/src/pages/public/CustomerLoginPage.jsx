@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, ShoppingBag, Truck, Heart, Award } from "lucide-react";
 import { useCustomerAuthStore } from "../../store/customerAuthStore";
 import toast from "react-hot-toast";
@@ -7,10 +7,12 @@ import { BugIcon } from "../../components/icons/Icons";
 
 export default function CustomerLoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login, loading } = useCustomerAuthStore();
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPw, setShowPw] = useState(false);
   const [errors, setErrors] = useState({});
+  const redirectTo = location.state?.from || "/";
 
   const set = (f, v) => {
     setForm((p) => ({ ...p, [f]: v }));
@@ -31,7 +33,7 @@ export default function CustomerLoginPage() {
     const result = await login(form.email, form.password);
     if (result.success) {
       toast.success("Welcome back!");
-      navigate("/");
+      navigate(redirectTo, { replace: true });
     } else {
       toast.error(result.message);
     }
@@ -158,6 +160,7 @@ export default function CustomerLoginPage() {
               Don't have an account?{" "}
               <Link
                 to="/customer/register"
+                state={{ from: redirectTo }}
                 className="text-orange-500 hover:text-orange-400 font-semibold"
               >
                 Create one

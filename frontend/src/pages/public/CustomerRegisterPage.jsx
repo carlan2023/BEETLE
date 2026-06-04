@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, ChevronRight, Check } from "lucide-react";
 import { useCustomerAuthStore } from "../../store/customerAuthStore";
 import toast from "react-hot-toast";
@@ -33,6 +33,7 @@ const Field = ({
 
 export default function CustomerRegisterPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { register, loading } = useCustomerAuthStore();
   const [step, setStep] = useState(0);
   const [showPw, setShowPw] = useState(false);
@@ -45,6 +46,7 @@ export default function CustomerRegisterPage() {
     confirmPassword: "",
   });
   const [errors, setErrors] = useState({});
+  const redirectTo = location.state?.from || "/";
 
   const set = (f, v) => {
     setForm((p) => ({ ...p, [f]: v }));
@@ -94,7 +96,7 @@ export default function CustomerRegisterPage() {
 
     if (result.success) {
       toast.success("Account created successfully!");
-      navigate("/");
+      navigate(redirectTo, { replace: true });
     } else {
       toast.error(result.message);
     }
@@ -311,6 +313,7 @@ export default function CustomerRegisterPage() {
                 Already have an account?{" "}
                 <Link
                   to="/customer/login"
+                  state={{ from: redirectTo }}
                   className="text-orange-500 hover:text-orange-400 font-semibold"
                 >
                   Sign in
