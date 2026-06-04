@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { CartIcon, PharmacyIcon, BoxIcon } from "../../components/icons/Icons";
 import { getGroceries } from "../../services/publicApi";
+import { getApiErrorMessage } from "../../services/api";
 
 const FEATURES = [
   {
@@ -42,8 +43,11 @@ export default function GroceriesPage() {
         } else {
           toast.error(result.message);
         }
-      } catch {
-        toast.error("Failed to fetch grocery stores");
+      } catch (err) {
+        console.error("Failed to fetch grocery stores:", err);
+        toast.error(
+          getApiErrorMessage(err, "Failed to fetch grocery stores."),
+        );
       } finally {
         setLoading(false);
       }
