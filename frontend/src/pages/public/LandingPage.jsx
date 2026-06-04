@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { ShoppingCart, LogOut } from "lucide-react";
 import {
   BugIcon,
   CartIcon,
@@ -13,6 +14,7 @@ import {
   CheckIcon,
 } from "../../components/icons/Icons";
 import ThemeToggle from "../../components/ThemeToggle";
+import { useCustomerAuthStore } from "../../store/customerAuthStore";
 import fallbackLogo from "../../assets/bug.svg";
 
 const CATEGORIES = [
@@ -82,6 +84,8 @@ const TESTIMONIALS = [
 
 function NavBar() {
   const [scrolled, setScrolled] = useState(false);
+  const { customer, cart, logout } = useCustomerAuthStore();
+
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", fn);
@@ -131,18 +135,60 @@ function NavBar() {
         {/* CTAs */}
         <div className="flex items-center gap-3">
           <ThemeToggle />
-          <Link
-            to="/vendor/login"
-            className="text-white/70 dark-theme:text-gray-600 hover:text-white dark-theme:hover:text-gray-900 font-heading text-sm font-semibold transition-colors hidden md:block"
-          >
-            Vendor Login
-          </Link>
+
+          {/* Cart Icon - Only show if customer is logged in */}
+          {customer && (
+            <Link
+              to="/cart"
+              className="relative text-white/70 dark-theme:text-gray-600 hover:text-white dark-theme:hover:text-gray-900 p-2 transition-colors"
+              title="Shopping Cart"
+            >
+              <ShoppingCart size={22} />
+              {cart && cart.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
+                  {cart.length}
+                </span>
+              )}
+            </Link>
+          )}
+
+          {customer ? (
+            <>
+              <span className="text-white/70 dark-theme:text-gray-600 font-body text-sm hidden md:block">
+                Hi, {customer.firstName}
+              </span>
+              <button
+                onClick={logout}
+                className="text-white/70 dark-theme:text-gray-600 hover:text-red-400 dark-theme:hover:text-red-500 font-heading text-sm p-2 transition-colors"
+                title="Logout"
+              >
+                <LogOut size={18} />
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/customer/login"
+                className="text-white/70 dark-theme:text-gray-600 hover:text-white dark-theme:hover:text-gray-900 font-heading text-sm font-semibold transition-colors hidden md:block"
+              >
+                Login
+              </Link>
+              <Link
+                to="/customer/register"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-heading font-bold
+                           text-sm px-4 py-2 rounded-lg transition-all active:scale-95"
+              >
+                Sign Up
+              </Link>
+            </>
+          )}
+
           <Link
             to="/vendor/register"
             className="bg-orange-500 hover:bg-orange-600 text-white font-heading font-bold
-                       text-sm px-5 py-2.5 rounded-xl transition-all active:scale-95"
+                       text-sm px-5 py-2.5 rounded-xl transition-all active:scale-95 hidden sm:inline-block"
           >
-            Sell on Beetle
+            Sell
           </Link>
         </div>
       </div>

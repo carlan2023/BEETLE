@@ -5,6 +5,9 @@ import GroceriesPage from "./pages/public/GroceriesPage";
 import BecomeRiderPage from "./pages/public/BecomeRiderPage";
 import CategoriesPage from "./pages/public/CategoriesPage";
 import BrowseVendorPage from "./pages/public/BrowseVendorPage";
+import CartPage from "./pages/public/CartPage";
+import CustomerLoginPage from "./pages/public/CustomerLoginPage";
+import CustomerRegisterPage from "./pages/public/CustomerRegisterPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 import LoginPage from "./pages/auth/LoginPage";
 import DashboardPage from "./pages/vendor/DashboardPage";
@@ -13,6 +16,7 @@ import OrdersPage from "./pages/vendor/OrdersPage";
 import ProfilePage from "./pages/vendor/ProfilePage";
 import VendorLayout from "./components/layout/VendorLayout";
 import { useAuthStore } from "./store/authStore";
+import { useCustomerAuthStore } from "./store/customerAuthStore";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 
@@ -43,6 +47,18 @@ function ProtectedRoute({ children }) {
 function GuestRoute({ children }) {
   const token = useAuthStore((s) => s.token);
   if (token) return <Navigate to="/vendor/dashboard" replace />;
+  return children;
+}
+
+function CustomerGuestRoute({ children }) {
+  const token = useCustomerAuthStore((s) => s.token);
+  if (token) return <Navigate to="/" replace />;
+  return children;
+}
+
+function CustomerProtectedRoute({ children }) {
+  const token = useCustomerAuthStore((s) => s.token);
+  if (!token) return <Navigate to="/customer/login" replace />;
   return children;
 }
 
@@ -90,6 +106,31 @@ export default function App() {
         <Route path="orders" element={<OrdersPage />} />
         <Route path="profile" element={<ProfilePage />} />
       </Route>
+
+      <Route
+        path="/cart"
+        element={
+          <CustomerProtectedRoute>
+            <CartPage />
+          </CustomerProtectedRoute>
+        }
+      />
+      <Route
+        path="/customer/register"
+        element={
+          <CustomerGuestRoute>
+            <CustomerRegisterPage />
+          </CustomerGuestRoute>
+        }
+      />
+      <Route
+        path="/customer/login"
+        element={
+          <CustomerGuestRoute>
+            <CustomerLoginPage />
+          </CustomerGuestRoute>
+        }
+      />
 
       {/* Admin */}
       <Route path="/admin">

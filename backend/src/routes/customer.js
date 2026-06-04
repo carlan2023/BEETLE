@@ -2,32 +2,29 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const { body, validationResult } = require("express-validator");
-const Vendor = require("../models/Vendor");
-const { protect } = require("../middleware/auth");
+const Customer = require("../models/Customer");
+const { protect, protectCustomer } = require("../middleware/auth");
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN || "7d",
   });
 
-const sendToken = (vendor, statusCode, res) => {
-  const token = signToken(vendor._id);
+const sendToken = (customer, statusCode, res) => {
+  const token = signToken(customer._id);
   res.status(statusCode).json({
     success: true,
     token,
-    vendor: vendor.toPublicJSON(),
+    customer: customer.toPublicJSON(),
   });
 };
 
-// ── POST /api/auth/register ───────────────────────────────────────────────────
+// ── POST /api/customer/register ───────────────────────────────────────────
 router.post(
   "/register",
   [
-    body("businessName")
-      .trim()
-      .notEmpty()
-      .withMessage("Business name is required"),
-    body("ownerName").trim().notEmpty().withMessage("Owner name is required"),
+    body("firstName").trim().notEmpty().withMessage("First name is required"),
+    body("lastName").trim().notEmpty().withMessage("Last name is required"),
     body("email")
       .isEmail()
       .normalizeEmail()
@@ -36,11 +33,6 @@ router.post(
     body("password")
       .isLength({ min: 8 })
       .withMessage("Password must be at least 8 characters"),
-    body("category").notEmpty().withMessage("Business category is required"),
-    body("address")
-      .trim()
-      .notEmpty()
-      .withMessage("Business address is required"),
   ],
   async (req, res) => {
     // Validate
@@ -50,27 +42,19 @@ router.post(
     }
 
     try {
-      const {
-        businessName,
-        ownerName,
-        email,
-        phone,
-        password,
-        category,
-        address,
-        description,
-      } = req.body;
+      const { firstName, lastName, email, phone, password } = req.body;
 
-      console.log("📝 Vendor registration attempt:", {
+      console.log("📝 Customer registration attempt:", {
         email,
-        businessName,
+        firstName,
+        lastName,
         phone,
         origin: req.get("origin"),
         userAgent: req.get("user-agent")?.substring(0, 50),
       });
 
       // Check duplicate email
-      const existing = await Vendor.findOne({ email });
+      const existing = await Customer.findOne({ email });
       if (existing) {
         return res.status(409).json({
           success: false,
@@ -78,24 +62,21 @@ router.post(
         });
       }
 
-      // Create vendor (status: pending — admin must approve)
-      const vendor = await Vendor.create({
-        businessName,
-        ownerName,
+      // Create customer
+      const customer = await Customer.create({
+        firstName,
+        lastName,
         email,
         phone,
         password,
-        category,
-        address,
-        description: description || "",
-        status: "pending",
+        cart: [],
       });
 
-      console.log("✅ Vendor registered successfully:", {
+      console.log("✅ Customer registered successfully:", {
         email,
-        id: vendor._id,
+        id: customer._id,
       });
-      sendToken(vendor, 201, res);
+      sendToken(customer, 201, res);
     } catch (err) {
       console.error("❌ Register error:", {
         message: err.message,
@@ -126,7 +107,7 @@ router.post(
   },
 );
 
-// ── POST /api/auth/login ──────────────────────────────────────────────────────
+// ── POST /api/customer/login ──────────────────────────────────────────────
 router.post(
   "/login",
   [
@@ -145,23 +126,23 @@ router.post(
     try {
       const { email, password } = req.body;
 
-      // Find vendor + include password field (normally hidden)
-      const vendor = await Vendor.findOne({ email }).select("+password");
-      if (!vendor) {
+      // Find customer + include password field (normally hidden)
+      const customer = await Customer.findOne({ email }).select("+password");
+      if (!customer) {
         return res
           .status(401)
           .json({ success: false, message: "Invalid email or password." });
       }
 
       // Check password
-      const isMatch = await vendor.comparePassword(password);
+      const isMatch = await customer.comparePassword(password);
       if (!isMatch) {
         return res
           .status(401)
           .json({ success: false, message: "Invalid email or password." });
       }
 
-      sendToken(vendor, 200, res);
+      sendToken(customer, 200, res);
     } catch (err) {
       console.error("Login error:", err);
       res
@@ -171,20 +152,20 @@ router.post(
   },
 );
 
-// ── GET /api/auth/me ──────────────────────────────────────────────────────────
-router.get("/me", protect, async (req, res) => {
-  res.json({ success: true, vendor: req.vendor.toPublicJSON() });
+// ── GET /api/customer/me ──────────────────────────────────────────────────
+router.get("/me", protectCustomer, async (req, res) => {
+  res.json({ success: true, customer: req.customer.toPublicJSON() });
 });
 
-// ── POST /api/auth/logout ─────────────────────────────────────────────────────
-router.post("/logout", protect, (req, res) => {
+// ── POST /api/customer/logout ─────────────────────────────────────────────
+router.post("/logout", protectCustomer, (req, res) => {
   res.json({ success: true, message: "Logged out successfully." });
 });
 
-// ── POST /api/auth/change-password ───────────────────────────────────────────
+// ── POST /api/customer/change-password ────────────────────────────────────
 router.post(
   "/change-password",
-  protect,
+  protectCustomer,
   [
     body("currentPassword")
       .notEmpty()
@@ -200,16 +181,18 @@ router.post(
     }
 
     try {
-      const vendor = await Vendor.findById(req.vendor._id).select("+password");
-      const isMatch = await vendor.comparePassword(req.body.currentPassword);
+      const customer = await Customer.findById(req.customer._id).select(
+        "+password",
+      );
+      const isMatch = await customer.comparePassword(req.body.currentPassword);
       if (!isMatch) {
         return res
           .status(401)
           .json({ success: false, message: "Current password is incorrect." });
       }
 
-      vendor.password = req.body.newPassword;
-      await vendor.save();
+      customer.password = req.body.newPassword;
+      await customer.save();
 
       res.json({ success: true, message: "Password updated successfully." });
     } catch (err) {

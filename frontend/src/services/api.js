@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const base = import.meta.env.VITE_API_URL
-  ? `${import.meta.env.VITE_API_URL.replace(/\/$/, "")}/api`
+  ? import.meta.env.VITE_API_URL.replace(/\/$/, "") + "/api"
   : "/api";
 
 export const getApiErrorMessage = (

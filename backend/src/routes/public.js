@@ -18,7 +18,12 @@ const CATEGORY_LABELS = {
 const normalizeCategory = (value) => {
   if (!value) return null;
 
-  const normalized = value.toString().trim().toLowerCase().replace(/\s*&\s*/g, "_").replace(/\s+/g, "_");
+  const normalized = value
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/\s*&\s*/g, "_")
+    .replace(/\s+/g, "_");
   const aliases = {
     restaurants: "food_drinks",
     food_drinks: "food_drinks",
@@ -270,6 +275,58 @@ router.get("/search", async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ success: false, message: "Search failed." });
+  }
+});
+
+// ── GET /api/public/products ──────────────────────────────────────────────────
+// Browse products from approved vendors
+router.get("/products", async (req, res) => {
+  try {
+    const { page = 1, limit = 12, category, vendor } = req.query;
+    const skip = (Number(page) - 1) * Number(limit);
+    const filter = { isAvailable: true };
+
+    if (category) {
+      const normalized = normalizeCategory(category);
+      if (normalized) filter.category = normalized;
+    }
+
+    if (vendor) {
+      // Filter by specific vendor if provided
+      filter.vendorId = vendor;
+    } else {
+      // Only show products from approved vendors by default
+      const approvedVendors = await Vendor.find({
+        status: "approved",
+        isActive: true,
+      }).select("_id");
+      filter.vendorId = { $in: approvedVendors.map((v) => v._id) };
+    }
+
+    const [products, total] = await Promise.all([
+      Product.find(filter)
+        .populate("vendorId", "businessName logoUrl category rating")
+        .select("name price thumbnail images category description vendor")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(Number(limit)),
+      Product.countDocuments(filter),
+    ]);
+
+    res.json({
+      success: true,
+      data: products,
+      pagination: {
+        total,
+        page: Number(page),
+        pages: Math.ceil(total / Number(limit)),
+      },
+    });
+  } catch (err) {
+    console.error("Fetch products error:", err);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to fetch products." });
   }
 });
 

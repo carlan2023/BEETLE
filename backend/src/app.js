@@ -31,9 +31,43 @@ app.use((req, res, next) => {
 
 app.use(helmet());
 app.use(compression());
+// CORS configuration - allow frontend origin from environment or defaults
+const allowedOrigins = [
+  process.env.CLIENT_URL || "http://localhost:3000",
+  process.env.CLIENT_URL_SECONDARY, // For multiple frontend URLs if needed
+  "http://localhost:3000", // Local development
+  "http://localhost:3001",
+  "http://localhost:5173", // Vite default
+].filter(Boolean);
+
+// In production, also allow any vercel deployment domain
+if (process.env.NODE_ENV === "production") {
+  allowedOrigins.push(/\.vercel\.app$/);
+}
+
+console.log("✅ CORS Allowed Origins:", allowedOrigins);
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, curl requests)
+      if (!origin) return callback(null, true);
+
+      // Check if origin matches allowed list
+      const isAllowed = allowedOrigins.some((allowed) => {
+        if (typeof allowed === "string") {
+          return origin === allowed;
+        }
+        return allowed.test(origin);
+      });
+
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        console.warn(`❌ CORS blocked origin: ${origin}`);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   }),
 );
@@ -73,6 +107,8 @@ const publicPath = path.join(__dirname, "..", "public");
 app.use(express.static(publicPath, { maxAge: "30d", index: false }));
 
 app.use("/api/auth", require("./routes/auth"));
+app.use("/api/customer", require("./routes/customer"));
+app.use("/api/cart", require("./routes/cart"));
 app.use("/api/vendor", require("./routes/vendor"));
 app.use("/api/products", require("./routes/products"));
 app.use("/api/orders", require("./routes/orders"));
@@ -88,6 +124,10 @@ app.get("/api/health", (req, res) => {
     mongodb:
       mongoose.connection.readyState === 1 ? "✅ Connected" : "❌ Disconnected",
     dbHost: mongoose.connection.host || "Not connected",
+    corsOrigin: req.get("origin") || "No origin header",
+    allowedOrigins: allowedOrigins.map((o) =>
+      o instanceof RegExp ? o.toString() : o,
+    ),
   });
 });
 
