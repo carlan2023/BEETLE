@@ -12,6 +12,7 @@ import {
   BoxIcon,
 } from "../../components/icons/Icons";
 import { getCategories } from "../../services/publicApi";
+import { getApiErrorMessage } from "../../services/api";
 
 const ICON_MAP = {
   "Groceries": CartIcon,
@@ -38,7 +39,8 @@ export default function CategoriesPage() {
           toast.error(result.message);
         }
       } catch (err) {
-        toast.error("Failed to fetch categories");
+        console.error("Failed to fetch categories:", err);
+        toast.error(getApiErrorMessage(err, "Failed to fetch categories."));
       } finally {
         setLoading(false);
       }
