@@ -47,6 +47,18 @@ export const getProducts = async (page = 1, limit = 12, category = null) => {
   return response.data;
 };
 
+export const getStoreVendors = async (params = {}) => {
+  const response = await api.get("/store/vendors", {
+    params,
+  });
+  return response.data;
+};
+
+export const getVendorStore = async (vendorId) => {
+  const response = await api.get(`/store/vendors/${vendorId}`);
+  return response.data;
+};
+
 export default {
   getRestaurants,
   getGroceries,
@@ -55,4 +67,6 @@ export default {
   signupAsRider,
   searchPublic,
   getProducts,
+  getStoreVendors,
+  getVendorStore,
 };

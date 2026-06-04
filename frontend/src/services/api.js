@@ -4,6 +4,39 @@ const base = import.meta.env.VITE_API_URL
   ? import.meta.env.VITE_API_URL.replace(/\/$/, "") + "/api"
   : "/api";
 
+const AUTH_KEYS = {
+  admin: "beetle-admin",
+  vendor: "beetle-auth",
+  customer: "beetle-customer-auth",
+};
+
+const getStoredToken = (key) => {
+  const raw = localStorage.getItem(key);
+  if (!raw) return null;
+
+  try {
+    const parsed = JSON.parse(raw);
+    if (key === AUTH_KEYS.admin) return parsed?.token || null;
+    return parsed?.state?.token || parsed?.token || null;
+  } catch {
+    return null;
+  }
+};
+
+const getRequestScope = (url = "") => {
+  if (url.startsWith("/admin")) return "admin";
+  if (url.startsWith("/customer") || url.startsWith("/cart")) return "customer";
+  if (
+    url.startsWith("/auth") ||
+    url.startsWith("/vendor") ||
+    url.startsWith("/products") ||
+    url.startsWith("/orders")
+  ) {
+    return "vendor";
+  }
+  return null;
+};
+
 export const getApiErrorMessage = (
   err,
   fallback = "Something went wrong. Please try again.",
@@ -55,22 +88,23 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  // Prefer admin token if present, otherwise vendor token
-  const rawAdmin = localStorage.getItem("beetle-admin");
-  if (rawAdmin) {
-    try {
-      const { token } = JSON.parse(rawAdmin);
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-        return config;
-      }
-    } catch {}
+  const scope = getRequestScope(config.url || "");
+  const tokensByScope = {
+    admin: getStoredToken(AUTH_KEYS.admin),
+    vendor: getStoredToken(AUTH_KEYS.vendor),
+    customer: getStoredToken(AUTH_KEYS.customer),
+  };
+
+  const token =
+    (scope && tokensByScope[scope]) ||
+    tokensByScope.admin ||
+    tokensByScope.vendor ||
+    tokensByScope.customer;
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
-  const raw = localStorage.getItem("beetle-auth");
-  if (raw) {
-    const { state } = JSON.parse(raw);
-    if (state?.token) config.headers.Authorization = `Bearer ${state.token}`;
-  }
+
   return config;
 });
 
@@ -78,12 +112,25 @@ api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401) {
-      // clear both auth keys and redirect based on path
-      localStorage.removeItem("beetle-auth");
-      localStorage.removeItem("beetle-admin");
-      if (window.location.pathname.startsWith("/admin"))
+      const scope =
+        getRequestScope(err.config?.url || "") ||
+        (window.location.pathname.startsWith("/admin")
+          ? "admin"
+          : window.location.pathname.startsWith("/customer") ||
+              window.location.pathname.startsWith("/cart")
+            ? "customer"
+            : "vendor");
+
+      if (scope === "admin") {
+        localStorage.removeItem(AUTH_KEYS.admin);
         window.location.href = "/admin/login";
-      else window.location.href = "/vendor/login";
+      } else if (scope === "customer") {
+        localStorage.removeItem(AUTH_KEYS.customer);
+        window.location.href = "/customer/login";
+      } else {
+        localStorage.removeItem(AUTH_KEYS.vendor);
+        window.location.href = "/vendor/login";
+      }
     }
     return Promise.reject(err);
   },
