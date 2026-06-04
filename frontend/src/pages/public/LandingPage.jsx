@@ -54,11 +54,12 @@ const STATS = [
 ];
 
 const NAV_LINKS = [
+  { label: "Shop", to: "/shop" },
   { label: "Restaurants", to: "/restaurants" },
   { label: "Groceries", to: "/groceries" },
   { label: "Become a Rider", to: "/become-a-rider" },
   { label: "Categories", to: "/categories" },
-  { label: "Browse as a Vendor", to: "/browse-vendor" },
+  { label: "Browse Vendors", to: "/browse-vendor" },
 ];
 
 const TESTIMONIALS = [
@@ -154,6 +155,12 @@ function NavBar() {
 
           {customer ? (
             <>
+              <Link
+                to="/customer/orders"
+                className="text-white/70 dark-theme:text-gray-600 hover:text-white dark-theme:hover:text-gray-900 font-heading text-sm font-semibold transition-colors hidden md:block"
+              >
+                My Orders
+              </Link>
               <span className="text-white/70 dark-theme:text-gray-600 font-body text-sm hidden md:block">
                 Hi, {customer.firstName}
               </span>
@@ -300,13 +307,13 @@ function HeroSection() {
             className="flex flex-wrap gap-4 animate-fade-up"
             style={{ animationDelay: "0.3s" }}
           >
-            <a
-              href="#categories"
+            <Link
+              to="/shop"
               className="bg-orange-500 hover:bg-orange-600 text-white font-heading font-bold
                          text-lg px-8 py-4 rounded-xl transition-all active:scale-95 flex items-center gap-2"
             >
               Start Ordering →
-            </a>
+            </Link>
             <Link
               to="/vendor/register"
               className="border-2 border-white/20 hover:border-orange-500 text-white font-heading font-bold
