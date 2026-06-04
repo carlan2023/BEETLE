@@ -5,27 +5,34 @@ const { protectCustomer } = require("../middleware/auth");
 const Customer = require("../models/Customer");
 const Product = require("../models/Product");
 const Order = require("../models/Order");
+const Vendor = require("../models/Vendor");
 
 // ── GET /api/cart ─────────────────────────────────────────────────────────
 router.get("/", protectCustomer, async (req, res) => {
   try {
     const customer = await Customer.findById(req.customer._id).populate({
       path: "cart.productId",
-      select: "name price image",
+      select: "name price thumbnail images",
     });
 
-    const cart = customer.cart.map((item) => ({
-      _id: item._id,
-      productId: item.productId._id,
-      vendorId: item.vendorId,
-      name: item.name || item.productId.name,
-      price: item.price || item.productId.price,
-      image: item.image || item.productId.image,
-      quantity: item.quantity,
-      addedAt: item.addedAt,
-    }));
+    const cart = customer.cart
+      .filter((item) => item.productId)
+      .map((item) => ({
+        _id: item._id,
+        productId: item.productId._id,
+        vendorId: item.vendorId,
+        name: item.name || item.productId.name,
+        price: item.price || item.productId.price,
+        image:
+          item.image || item.productId.thumbnail || item.productId.images?.[0],
+        quantity: item.quantity,
+        addedAt: item.addedAt,
+      }));
 
-    const total = customer.getCartTotal();
+    const total = cart.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    );
 
     res.json({
       success: true,
@@ -67,6 +74,12 @@ router.post(
           .status(404)
           .json({ success: false, message: "Product not found." });
       }
+      if (product.vendorId.toString() !== vendorId) {
+        return res.status(400).json({
+          success: false,
+          message: "The selected product does not belong to that vendor.",
+        });
+      }
 
       // Check if product already in cart
       const customer = await Customer.findById(req.customer._id);
@@ -84,7 +97,7 @@ router.post(
           vendorId,
           name: product.name,
           price: product.price,
-          image: product.image,
+          image: product.thumbnail || product.images?.[0] || "",
           quantity,
         });
       }
@@ -252,29 +265,78 @@ router.post(
       let totalAmount = 0;
 
       for (const vendorId in ordersByVendor) {
-        const items = ordersByVendor[vendorId];
-        const amount = items.reduce(
+        const cartItems = ordersByVendor[vendorId];
+        const vendor = await Vendor.findOne({
+          _id: vendorId,
+          status: "approved",
+          isActive: true,
+        });
+
+        if (!vendor) {
+          return res.status(400).json({
+            success: false,
+            message: "One of the selected vendors is unavailable.",
+          });
+        }
+
+        const items = [];
+        for (const item of cartItems) {
+          const product = await Product.findOne({
+            _id: item.productId,
+            vendorId,
+            isAvailable: true,
+          });
+
+          if (!product) {
+            return res.status(400).json({
+              success: false,
+              message: `A cart item is no longer available from ${vendor.businessName}.`,
+            });
+          }
+
+          items.push({
+            productId: product._id,
+            name: product.name,
+            price: product.price,
+            quantity: item.quantity,
+            thumbnail: product.thumbnail || product.images?.[0] || "",
+          });
+        }
+
+        const subtotal = items.reduce(
           (sum, item) => sum + item.price * item.quantity,
           0,
         );
-        totalAmount += amount;
+        const deliveryFee = 3000;
+        const serviceFee = 500;
+        const total = subtotal + deliveryFee + serviceFee;
+        totalAmount += total;
 
         const order = await Order.create({
           customerId: customer._id,
           vendorId,
+          customer: {
+            name: `${customer.firstName} ${customer.lastName}`.trim(),
+            phone: customer.phone,
+            address,
+          },
           items,
-          amount,
-          deliveryAddress: address,
-          status: "pending",
+          subtotal,
+          deliveryFee,
+          serviceFee,
+          total,
+          status: "PENDING",
           paymentStatus: "pending",
+          statusHistory: [
+            { status: "PENDING", note: "Order placed by customer" },
+          ],
         });
 
         orders.push(order);
 
         // Update vendor order count and revenue
-        const Vendor = require("../models/Vendor");
         await Vendor.findByIdAndUpdate(vendorId, {
-          $inc: { totalOrders: 1, totalRevenue: amount },
+          $inc: { totalOrders: 1, totalRevenue: subtotal },
         });
       }
 
@@ -297,7 +359,8 @@ router.post(
         orders: orders.map((o) => ({
           _id: o._id,
           vendorId: o.vendorId,
-          amount: o.amount,
+          orderNumber: o.orderNumber,
+          total: o.total,
           status: o.status,
         })),
         totalAmount,

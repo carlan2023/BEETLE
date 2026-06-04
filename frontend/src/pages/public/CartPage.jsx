@@ -60,7 +60,7 @@ export default function CartPage() {
         `Order placed! Total: UGX ${result.totalAmount.toLocaleString()}`,
       );
       setAddress("");
-      navigate("/orders");
+      navigate("/customer/orders");
     } else {
       toast.error(result.message);
     }
@@ -76,7 +76,7 @@ export default function CartPage() {
         {/* Header */}
         <div className="mb-8">
           <Link
-            to="/"
+            to="/shop"
             className="text-orange-500 hover:text-orange-400 text-sm mb-4 inline-block"
           >
             ← Back to shopping
@@ -94,7 +94,7 @@ export default function CartPage() {
             <p className="text-white/40 mb-6">
               Start adding items to get started
             </p>
-            <Link to="/" className="btn-primary inline-block">
+            <Link to="/shop" className="btn-primary inline-block">
               Continue Shopping
             </Link>
           </div>
